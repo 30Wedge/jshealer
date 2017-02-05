@@ -246,4 +246,43 @@ helpers.findNearestTeamMember = function (gameData) {
     return pathInfoObject.direction;
 };
 
+helpers.numberOfAdjacentEnemies = function (gameData) {
+    var hero = gameData.activeHero;
+    var board = gameData.board;
+
+    var cnt = 0;
+    var directions = ['North', 'East', 'South', 'West'];
+
+    for (var i = 0; i < directions.length; i++) { 
+        var direction = directions[i];
+        var nextTile = helpers.getTileNearby(board, hero.distanceFromTop, hero.distanceFromLeft, direction);
+
+        if (nextTile && nextTile.type === 'Hero' && nextTile.team !== hero.team) {
+            cnt++;
+        }
+        return cnt;
+    }
+};
+
+// Returns true if the hero is in a state that warrants retreating 
+helpers.needsHealth = function (gameData) {
+    var hero = gameData.activeHero;
+    var board = gameData.board;
+
+    if(hero.health < 30) {
+        return true;
+    } else {
+        var numAdj = helpers.numberOfAdjacentEnemies(gameData);
+        if(numAdj <2 ) {
+            return false;
+        } else if(numAdj == 2 && hero.health <= 60) {
+            return false;
+        } else if(numAdj == 3 && hero.health <= 90) {
+            return true;
+        }
+    }
+    return false;
+};
+
+
 module.exports = helpers;
